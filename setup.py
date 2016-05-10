@@ -3,13 +3,13 @@ from os.path import join
 from setuptools import setup
 import versioneer
 
-
+# note that we don't explicitly version numpy,
+# let menpo handle that
 install_requires = [
-    'docopt>=0.6,<0.7'
+    'docopt>=0.6,<0.7',
     'menpofit>=0.3,<0.4',
     'menpodetect>=0.3,<0.4',
-    'numpy'  # note that we don't explicitly version numpy,
-             # let menpo handle that
+    'numpy'
 ]
 
 if sys.version_info.major == 2:
