@@ -1,0 +1,19 @@
+package:
+  name: menpocli
+  version: {{ environ['CONDACI_VERSION'] }}
+
+requirements:
+  build:
+    - python
+
+  run:
+    - python
+    - pathlib 1.0  # [py2k]
+    - numpy
+    - docopt 0.6.*
+    - menpofit 0.3.*
+    - menpodetect 0.3.*
+
+about:
+  home: https://github.com/menpo/menpocli/
+  license: BSD
