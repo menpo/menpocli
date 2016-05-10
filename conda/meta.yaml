@@ -14,6 +14,10 @@ requirements:
     - menpofit 0.3.*
     - menpodetect 0.3.*
 
+test:
+  commands:
+    - menpofit -h
+
 about:
   home: https://github.com/menpo/menpocli/
   license: BSD
