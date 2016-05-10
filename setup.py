@@ -1,6 +1,7 @@
 import sys
 from os.path import join
 from setuptools import setup
+import versioneer
 
 
 install_requires = [
@@ -15,6 +16,8 @@ if sys.version_info.major == 2:
     install_requires.append('pathlib==1.0')
 
 setup(name='menpocli',
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       description='A command line interface to the Menpo Project',
       author='James Booth',
       author_email='james.booth08@imperial.ac.uk',
