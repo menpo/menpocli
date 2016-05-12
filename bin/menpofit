@@ -52,7 +52,7 @@ def cache_and_load_fitter(cache_dir, version):
         url = fitter_url(version)
         download_file(url, fitter_p)
         # recurse, we will now have the fitter available.
-        cache_and_load_fitter(cache_dir, version)
+        return cache_and_load_fitter(cache_dir, version)
 
 
 def can_import_img(path):
