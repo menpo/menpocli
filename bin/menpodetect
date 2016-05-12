@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""Perform face detection on images using menpodetect
+
+Usage:
+  menpodetect [-f | --force] <path>...
+  menpodetect (-h | --help)
+  menpodetect --version
+
+Options:
+  <path>       Perform face detection on all images found at path
+  --force -f   Overwrite existing annotations
+  -h --help    Show this screen.
+  --version    Show version.
+"""
+from docopt import docopt
+
+import menpo.io as mio
+from menpo.visualize import print_progress
+from menpodetect import load_dlib_frontal_face_detector
+import menpodetect  # needed for version
+
+from menpocli.io import resolve_importable_paths, save_pointcloud_as_landmark
+
+
+def detect_images(detector, img_paths):
+    for img_path in print_progress(img_paths):
+        img = mio.import_image(img_path, normalise=False)
+        bboxes = detector(img)
+        for i, bbox in enumerate(bboxes):
+            save_pointcloud_as_landmark(img_path, i, bbox)
+
+
+if __name__ == '__main__':
+    a = docopt(__doc__,
+               version='menpodetect v{}'.format(menpodetect.__version__))
+    print('\nM E N P O D E T E C T ' + 'v' + menpodetect.__version__ + '\n')
+    image_paths = resolve_importable_paths(a['<path>'])
+    detect_images(load_dlib_frontal_face_detector(), image_paths)

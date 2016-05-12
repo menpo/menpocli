@@ -23,6 +23,7 @@ setup(name='menpocli',
       author='James Booth',
       author_email='james.booth08@imperial.ac.uk',
       packages=['menpocli'],
-      scripts=[join('bin', 'menpofit')],
+      scripts=[join('bin', 'menpofit'),
+               join('bin', 'menpodetect')],
       install_requires=install_requires
       )
