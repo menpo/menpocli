@@ -3,15 +3,14 @@
 """Perform facial landmark localization using menpofit
 
 Usage:
-  menpofit <model_path> <images_path>...
+  menpofit <path>...
   menpofit (-h | --help)
   menpofit --version
 
 Options:
-  <aam_path>         The path to a pickled Menpo fitter.
-  <path>             Perform landmark localization on all images found at path
-  -h --help          Show this screen.
-  --version          Show version.
+  <path>       Perform landmark localization on all images found at path
+  -h --help    Show this screen.
+  --version    Show version.
 """
 from os.path import isfile
 from pathlib import Path
@@ -24,10 +23,36 @@ from menpo.visualize import print_progress
 from menpodetect import load_dlib_frontal_face_detector
 import menpofit  # needed for version
 
+from menpocli import MENPO_SERVER_URL
+from menpocli.config import (resolve_cache_dir, save_cache_dir,
+                             user_settings_path)
+from menpocli.exception import MissingConfigKeyError
+from menpocli.utils import create_path, download_file, norm_path
 
-def load_fitter(path):
-    print('loading {}'.format(path))
-    return mio.import_pickle(path)
+
+@create_path
+def menpofit_cache_dir(cache_dir):
+    return cache_dir / 'menpofit'
+
+
+def fitter_path(cache_dir, version):
+    return menpofit_cache_dir(cache_dir) / '{}_fitter.pkl'.format(version)
+
+
+def fitter_url(version):
+    return MENPO_SERVER_URL + 'menpofit/{}/fitter.pkl'.format(version)
+
+
+def cache_and_load_fitter(cache_dir, version):
+    fitter_p = fitter_path(cache_dir, version)
+    if fitter_p.exists():
+        return mio.import_pickle(fitter_p)
+    else:
+        print('Need to cache fitter for menpofit {}'.format(version))
+        url = fitter_url(version)
+        download_file(url, fitter_p)
+        # recurse, we will now have the fitter available.
+        cache_and_load_fitter(cache_dir, version)
 
 
 def can_import_img(path):
@@ -66,11 +91,6 @@ def save_fitting_result_as_landmark(img_path, i, fr):
 
 
 def find_detect_and_fit_images(detector, fitter, img_paths):
-    print('')
-    print('M E N P O F I T  ' + 'v' + menpofit.__version__)
-    print()
-    # print(centre_str('config: {}'.format(experiment_name)))
-    # print(centre_str('cache: {}'.format(resolve_cache_dir())))
     importable_img_paths = set(filter(can_import_img, img_paths))
     non_importable = img_paths - importable_img_paths
 
@@ -90,9 +110,40 @@ def find_detect_and_fit_images(detector, fitter, img_paths):
             save_fitting_result_as_landmark(img_path, i, fr)
 
 
+CACHE_MESSAGE = '''
+Menpo needs a cache directory on your machine that can be used for storing
+deformable models downloaded from the Menpo server. Downloaded files may
+be a few gigabytes in size, so you should choose a cache location that is
+on a file system with a large amount of free storage (>10GB).
+'''
+
+CACHE_SET_MESSAGE = '''
+Your cache directory has been set to:
+{}
+
+Your preference has been stored in your Menpo user settings at:
+{}
+
+Edit this file if you wish to change your cache directory in the
+future.
+
+Rerun this command again to start using menpofit!
+'''
+
 if __name__ == '__main__':
     a = docopt(__doc__,
                version='menpofit v{}'.format(menpofit.__version__))
-    find_detect_and_fit_images(load_dlib_frontal_face_detector(),
-                               load_fitter(a['<model_path>']),
-                               resolve_all_paths(a['<images_path>']))
+    print('\nM E N P O F I T  ' + 'v' + menpofit.__version__ + '\n')
+    try:
+        cache_dir = resolve_cache_dir()
+    except MissingConfigKeyError as e:
+        print(CACHE_MESSAGE)
+        cache_dir = norm_path(input('Menpo cache dir: '))
+        print(CACHE_SET_MESSAGE.format(cache_dir, user_settings_path()))
+        save_cache_dir(cache_dir)
+    else:
+        print('cache: {}'.format(cache_dir))
+        fitter = cache_and_load_fitter(cache_dir, menpofit.__version__)
+        image_paths = resolve_all_paths(a['<path>'])
+        find_detect_and_fit_images(load_dlib_frontal_face_detector(),
+                                   fitter, image_paths)
