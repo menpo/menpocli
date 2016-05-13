@@ -22,7 +22,7 @@ import menpofit  # needed for version
 
 from menpocli import MENPO_SERVER_URL
 from menpocli.config import (resolve_cache_dir, save_cache_dir,
-                             user_settings_path)
+                             user_settings_path, DEFAULT_CACHE_DIR)
 from menpocli.exception import MissingConfigKeyError
 from menpocli.io import resolve_importable_paths, save_pointcloud_as_landmark
 from menpocli.utils import create_path, download_file, norm_path
@@ -75,13 +75,22 @@ Menpo needs a cache directory on your machine that can be used for storing
 deformable models downloaded from the Menpo server. Downloaded files may
 be a few gigabytes in size, so you should choose a cache location that is
 on a file system with a large amount of free storage (>10GB).
-'''
+
+By default, we suggest using {}
+
+  - Press ENTER to confirm the location
+  - Press CTRL-C to abort
+  - Or specify a different location below
+'''.format(DEFAULT_CACHE_DIR)
 
 CACHE_SET_MESSAGE = '''
+
 Your cache directory has been set to:
+
 {}
 
 Your preference has been stored in your Menpo user settings at:
+
 {}
 
 Edit this file if you wish to change your cache directory in the
@@ -98,7 +107,9 @@ if __name__ == '__main__':
         cache_dir = resolve_cache_dir()
     except MissingConfigKeyError as e:
         print(CACHE_MESSAGE)
-        cache_dir = norm_path(input('Menpo cache dir: '))
+        user_input = input('[{}] >>> '.format(DEFAULT_CACHE_DIR))
+        cache_dir = (norm_path(user_input)
+                     if user_input != '' else DEFAULT_CACHE_DIR)
         print(CACHE_SET_MESSAGE.format(cache_dir, user_settings_path()))
         save_cache_dir(cache_dir)
     else:

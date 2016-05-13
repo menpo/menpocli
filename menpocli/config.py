@@ -1,7 +1,10 @@
 import os
 from pathlib import Path
-from .utils import create_path, load_yaml, save_yaml
+from .utils import create_path, load_yaml, save_yaml, norm_path
 from .exception import MissingConfigKeyError
+
+
+DEFAULT_CACHE_DIR = norm_path('~/menpocache')
 
 
 @create_path
