@@ -7,7 +7,6 @@ import versioneer
 # let menpo handle that
 install_requires = [
     'docopt>=0.6,<0.7',
-    'pyyaml>=3.0,<4.0',
     'menpofit>=0.4,<0.5',
     'menpodetect>=0.4,<0.5',
     'numpy'
