@@ -2,6 +2,9 @@
 # encoding: utf-8
 """Perform facial landmark localization using menpofit
 
+The estimated landmarks will be saved as .pts files next to the input image,
+with the same file stem as the input image e.g. image.jpg -> image.pts
+
 Usage:
   menpofit <path>...
   menpofit (-h | --help)
