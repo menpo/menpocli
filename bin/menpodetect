@@ -6,13 +6,12 @@ The estimated bounding boxes will be saved as .pts files next to the input
 image, with the same file stem as the input image e.g. image.jpg -> image.pts
 
 Usage:
-  menpodetect [-f | --force] <path>...
+  menpodetect <path>...
   menpodetect (-h | --help)
   menpodetect --version
 
 Options:
   <path>       Perform face detection on all images found at path
-  --force -f   Overwrite existing annotations
   -h --help    Show this screen.
   --version    Show version.
 """
