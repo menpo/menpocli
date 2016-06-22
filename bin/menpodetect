@@ -27,7 +27,7 @@ from menpocli.io import resolve_importable_paths, save_pointcloud_as_landmark
 
 def detect_images(detector, img_paths):
     for img_path in print_progress(img_paths):
-        img = mio.import_image(img_path, normalise=False)
+        img = mio.import_image(img_path, normalize=False)
         bboxes = detector(img)
         for i, bbox in enumerate(bboxes):
             save_pointcloud_as_landmark(img_path, i, bbox)
