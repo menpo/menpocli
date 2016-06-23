@@ -26,15 +26,28 @@ from menpo.visualize import print_progress, print_dynamic
 from menpodetect import load_dlib_frontal_face_detector
 import menpodetect  # needed for version
 
-from menpocli.io import resolve_importable_paths, save_pointcloud_as_landmark
+from menpocli.io import (resolve_importable_paths, save_pointcloud_as_landmark,
+                         build_landmark_output_path)
 
 
 def detect_images(detector, img_paths, overwrite):
     for img_path in print_progress(img_paths):
-        img = mio.import_image(img_path, normalize=False)
-        bboxes = detector(img)
-        for i, bbox in enumerate(bboxes):
-            save_pointcloud_as_landmark(img_path, i, bbox)
+        landmark_out_path = build_landmark_output_path(img_path)
+        if not overwrite and landmark_out_path.exists():
+            print_dynamic(
+                '{} already exists. Please set the --force/-f flag if '
+                'you wish to overwrite the file.\n'.format(landmark_out_path)
+            )
+            continue
+
+        try:
+            img = mio.import_image(img_path, normalize=False)
+            bboxes = detector(img)
+            for i, bbox in enumerate(bboxes):
+                save_pointcloud_as_landmark(img_path, i, bbox)
+        except:
+            msg = 'Unable to process {}'.format(img_path).ljust(100)
+            print_dynamic(msg + '\n')
 
 
 if __name__ == '__main__':

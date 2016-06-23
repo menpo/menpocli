@@ -20,21 +20,21 @@ Options:
   --version    Show version.
 """
 from docopt import docopt
-import numpy as np
 
 import menpo.io as mio
-from menpo.visualize import print_progress
-
+from menpo.visualize import print_progress, print_dynamic
+from menpo.image.base import normalize_pixels_range
 from menpodetect import load_dlib_frontal_face_detector
 import menpofit  # needed for version
 from menpofit.aam import load_balanced_frontal_face_fitter
 
-from menpocli.io import resolve_importable_paths, save_pointcloud_as_landmark
+from menpocli.io import (resolve_importable_paths, save_pointcloud_as_landmark,
+                         build_landmark_output_path)
 
 
 def prepare_img_for_fit(img):
     new_img = img.copy()
-    new_img.pixels = np.array(new_img.pixels, dtype=np.float) * (1.0 / 255.0)
+    new_img.pixels = normalize_pixels_range(new_img.pixels)
     if new_img.n_channels == 3:
         new_img = new_img.as_greyscale(mode='luminosity')
     return new_img
@@ -42,11 +42,24 @@ def prepare_img_for_fit(img):
 
 def detect_and_fit_images(detector, fitter, img_paths, overwrite):
     for img_path in print_progress(img_paths):
-        img = mio.import_image(img_path, normalize=False)
-        bboxes = detector(img)
-        for i, bbox in enumerate(bboxes):
-            fr = fitter.fit_from_bb(prepare_img_for_fit(img), bbox)
-            save_pointcloud_as_landmark(img_path, i, fr.final_shape)
+        landmark_out_path = build_landmark_output_path(img_path)
+        if not overwrite and landmark_out_path.exists():
+            print_dynamic(
+                '{} already exists. Please set the --force/-f flag if '
+                'you wish to overwrite the file.\n'.format(landmark_out_path)
+            )
+            continue
+
+        try:
+            img = mio.import_image(img_path, normalize=False)
+            bboxes = detector(img)
+            for i, bbox in enumerate(bboxes):
+                fr = fitter.fit_from_bb(prepare_img_for_fit(img), bbox)
+                save_pointcloud_as_landmark(img_path, i, fr.final_shape)
+        except:
+            msg = 'Unable to process {}'.format(img_path).ljust(100)
+            print_dynamic(msg + '\n')
+
 
 if __name__ == '__main__':
     a = docopt(__doc__,
