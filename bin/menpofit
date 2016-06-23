@@ -5,13 +5,17 @@
 The estimated landmarks will be saved as .pts files next to the input image,
 with the same file stem as the input image e.g. image.jpg -> image.pts
 
+If the output landmark file already exists and the --force/-f flag is not passed
+the output file will not be written.
+
 Usage:
-  menpofit <path>...
+  menpofit [-f | --force] <path>...
   menpofit (-h | --help)
   menpofit --version
 
 Options:
   <path>       Perform landmark localization on all images found at path
+  --force -f   Overwrite existing annotations
   -h --help    Show this screen.
   --version    Show version.
 """
@@ -36,7 +40,7 @@ def prepare_img_for_fit(img):
     return new_img
 
 
-def detect_and_fit_images(detector, fitter, img_paths):
+def detect_and_fit_images(detector, fitter, img_paths, overwrite):
     for img_path in print_progress(img_paths):
         img = mio.import_image(img_path, normalize=False)
         bboxes = detector(img)
@@ -51,4 +55,4 @@ if __name__ == '__main__':
     detector = load_dlib_frontal_face_detector()
     fitter = load_balanced_frontal_face_fitter()
     image_paths = resolve_importable_paths(a['<path>'])
-    detect_and_fit_images(detector, fitter, image_paths)
+    detect_and_fit_images(detector, fitter, image_paths, a['--force'])
