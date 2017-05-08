@@ -4,9 +4,6 @@ from pathlib import Path
 import menpo.io as mio
 from menpo.io.input.base import importer_for_filepath, image_types
 
-from menpo.landmark import LandmarkGroup
-from menpo.visualize import print_dynamic
-
 
 def build_landmark_output_path(img_path, i=0):
     name = img_path.stem + ('_' + str(i) if i > 0 else '')
@@ -48,7 +45,6 @@ def resolve_importable_paths(img_paths_or_patterns):
 
 
 def save_pointcloud_as_landmark(img_path, i, pointcloud):
-    lms = LandmarkGroup.init_with_all_label(pointcloud)
-    mio.export_landmark_file(lms,
+    mio.export_landmark_file(pointcloud,
                              build_landmark_output_path(img_path),
                              overwrite=True)
