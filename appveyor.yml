@@ -19,5 +19,5 @@ init:
 
 install:
   - ps: $env:MINICONDA_DIR = python C:\\condaci.py miniconda_dir
-  - ps: exit (Start-Process -FilePath:"${env:MINICONDA_DIR}\\python" -argumentList:"C:\\condaci.py build conda" -wait -errorAction:Stop -PassThru).ExitCode
+  - ps: & "${env:MINICONDA_DIR}\\python" "C:\\condaci.py build conda"
 
