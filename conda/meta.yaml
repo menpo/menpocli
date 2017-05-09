@@ -11,8 +11,8 @@ requirements:
     - pathlib 1.0  # [py2k]
     - numpy
     - docopt 0.6.*
-    - menpofit 0.4.*
-    - menpodetect 0.4.*
+    - menpofit 0.5.*
+    - menpodetect 0.5.*
 
 test:
   commands:
